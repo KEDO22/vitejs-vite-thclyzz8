@@ -2,160 +2,174 @@ import { useState } from 'react';
 import { mapLocations, storyNodes, worldMapImage } from './data';
 
 export default function App() {
-  const [screen, setScreen] = useState('STORY');
+  const [screen, setScreen] = useState('STORY'); // 'STORY' o 'MAP'
   const [nodeId, setNodeId] = useState('start');
-  const [selectedLoc, setSelectedLoc] = useState(null);
-  const [resources, setResources] = useState({ gold: 10, intel: 0, hp: 100 });
+  
+  // Tracciamo dove si trova fisicamente il giocatore per mostrare lo sfondo giusto
+  const [currentLocation, setCurrentLocation] = useState(null); 
+  const [selectedMapLoc, setSelectedMapLoc] = useState(null); // Per il popup della mappa
+
+  // Statistiche RPG
+  const [stats, setStats] = useState({ hp: 100, gold: 50, intel: 0, lvl: 1 });
 
   const node = storyNodes[nodeId];
 
+  // Gestione Scelte
   const handleChoice = (choice) => {
+    // Conseguenze
     if (choice.consequences) {
-      const newRes = { ...resources };
+      const newStats = { ...stats };
       choice.consequences.forEach(c => {
-        if (c.type === 'gold') newRes.gold += c.value;
-        if (c.type === 'intel') newRes.intel += c.value;
-        if (c.type === 'hp') newRes.hp += c.value;
+        if (c.type === 'hp') newStats.hp += c.value;
+        if (c.type === 'gold') newStats.gold += c.value;
+        if (c.type === 'intel') newStats.intel += c.value;
       });
-      setResources(newRes);
+      setStats(newStats);
     }
-    
-    if (choice.nextNodeId === 'MAP') setScreen('MAP');
-    else setNodeId(choice.nextNodeId);
+
+    // Navigazione
+    if (choice.nextNodeId === 'MAP') {
+      setScreen('MAP');
+    } else {
+      setNodeId(choice.nextNodeId);
+    }
   };
 
-  return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-cover bg-center"
-         style={{ backgroundImage: "url('https://images.unsplash.com/photo-1542259682-6e21625894b9?q=80&w=2000&auto=format&fit=crop')" }}>
-      
-      {/* Overlay scuro per leggere meglio */}
-      <div className="absolute inset-0 bg-black/70 pointer-events-none"></div>
+  // Determina lo sfondo attuale: o la mappa mondo, o il luogo specifico
+  const currentBackground = screen === 'MAP' 
+    ? worldMapImage 
+    : (currentLocation?.bgImage || "https://art.pixilart.com/sr2c67676743936.png"); // Fallback background
 
-      {/* HUD SUPERIORE STILE FANTASY */}
-      <div className="relative w-full max-w-5xl flex justify-between items-center bg-[#1a1510] border-y-2 border-[#b45309] p-4 mb-6 shadow-2xl z-10">
-        <h1 className="text-2xl md:text-4xl text-[#fbbf24] font-bold tracking-[0.2em] uppercase drop-shadow-md">
-          Aethelgard
-        </h1>
-        <div className="flex gap-6 text-[#e2e8f0] font-serif text-lg">
-          <div className="flex items-center gap-2">
-            <span className="text-red-500 text-2xl">♥</span> {resources.hp}
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-yellow-500 text-2xl">♦</span> {resources.gold}
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-blue-400 text-2xl">♠</span> {resources.intel}
-          </div>
+  return (
+    <div className="min-h-screen bg-black flex flex-col items-center justify-center p-4 relative overflow-hidden">
+      
+      {/* 1. SFONDO IMMERSIVO (Cambia sempre) */}
+      <div 
+        className="absolute inset-0 z-0 transition-all duration-1000"
+        style={{ 
+          backgroundImage: `url('${currentBackground}')`, 
+          backgroundSize: 'cover', 
+          backgroundPosition: 'center',
+          filter: 'brightness(0.5) contrast(1.2)' // Scuro per far leggere il testo
+        }}
+      ></div>
+
+      {/* Effetto Scanlines (TV Vecchia) */}
+      <div className="scanlines"></div>
+
+      {/* 2. HUD (Barra di stato sopra) */}
+      <div className="relative z-20 w-full max-w-4xl bg-black/80 border-b-4 border-white p-4 flex justify-between items-center pixel-border mb-4">
+        <div className="text-yellow-400 text-lg">LVL {stats.lvl}</div>
+        <div className="flex gap-6">
+           <span className="text-red-500">HP {stats.hp}</span>
+           <span className="text-yellow-500">GOLD {stats.gold}</span>
+           <span className="text-blue-400">INT {stats.intel}</span>
         </div>
       </div>
 
-      {screen === 'STORY' && node ? (
-        // --- INTERFACCIA DIALOGO (NUOVA) ---
-        <div className="relative z-10 w-full max-w-5xl flex flex-col md:flex-row gap-6 items-end">
-          
-          {/* 1. RITRATTO DEL PERSONAGGIO (Sinistra) */}
-          <div className="w-full md:w-1/3 flex flex-col items-center">
-             <div className="relative w-64 h-80 fantasy-border bg-black overflow-hidden shadow-[0_0_30px_rgba(0,0,0,1)]">
-               <img 
-                 src={node.characterImage} 
-                 alt={node.characterName} 
-                 className="w-full h-full object-cover hover:scale-105 transition-transform duration-1000"
-               />
-               <div className="absolute bottom-0 w-full bg-gradient-to-t from-black via-black/80 to-transparent p-4 pt-10 text-center">
-                 <h2 className="text-[#fbbf24] font-bold text-xl uppercase tracking-widest font-serif">{node.characterName}</h2>
-               </div>
-             </div>
-          </div>
-
-          {/* 2. FINESTRA DIALOGO (Destra) */}
-          <div className="w-full md:w-2/3 parchment-dark fantasy-border p-8 min-h-[300px] flex flex-col justify-between shadow-2xl relative">
-            {/* Titolo Capitolo */}
-            <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-[#451a03] border border-[#d97706] px-6 py-1 text-[#fbbf24] text-sm uppercase tracking-widest shadow-lg">
-              {node.title}
-            </div>
-
-            {/* Testo */}
-            <p className="text-xl md:text-2xl leading-relaxed text-[#e7e5e4] italic mb-8 drop-shadow-sm">
-              "{node.text}"
-            </p>
-
-            {/* Scelte */}
-            <div className="space-y-3">
-              {node.choices.map((c, i) => (
-                <button 
-                  key={i}
-                  onClick={() => handleChoice(c)}
-                  className="btn-fantasy w-full py-4 text-lg rounded-sm uppercase tracking-wider relative group overflow-hidden"
-                >
-                  <span className="relative z-10 flex items-center justify-center gap-2">
-                     <span className="text-[#d97706] opacity-0 group-hover:opacity-100 transition-opacity">⚔</span> 
-                     {c.text} 
-                     <span className="text-[#d97706] opacity-0 group-hover:opacity-100 transition-opacity">⚔</span>
-                  </span>
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-      ) : (
-        // --- INTERFACCIA MAPPA ---
-        <div className="relative z-10 w-full max-w-5xl h-[600px] fantasy-border bg-[#0c0a09] overflow-hidden shadow-2xl group">
-           
-           {/* Immagine Mappa */}
-           <img src={worldMapImage} className="w-full h-full object-cover opacity-60 group-hover:opacity-90 transition-opacity duration-700" alt="Mappa" />
-           
-           {/* Griglia Decorativa */}
-           <div className="absolute inset-0 opacity-20" style={{backgroundImage: "linear-gradient(#d97706 1px, transparent 1px), linear-gradient(90deg, #d97706 1px, transparent 1px)", backgroundSize: "50px 50px"}}></div>
-
-           {/* Punti Mappa */}
-           {mapLocations.map(loc => (
-             <button
-               key={loc.id}
-               onClick={() => loc.status === 'UNLOCKED' && setSelectedLoc(loc)}
-               disabled={loc.status === 'LOCKED'}
-               className={`absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-300 group/pin
-                 ${loc.status === 'LOCKED' ? 'opacity-40 grayscale' : 'hover:scale-125 cursor-pointer hover:z-50'}
-               `}
-               style={{ left: `${loc.x}%`, top: `${loc.y}%` }}
-             >
-                <div className={`w-6 h-6 rotate-45 border-2 border-[#fbbf24] shadow-[0_0_15px_#fbbf24]
-                  ${loc.region === 'EMPIRE' ? 'bg-gray-800' : 'bg-[#78350f]'}
-                `}></div>
-                <div className="absolute top-8 left-1/2 -translate-x-1/2 text-[#fbbf24] text-xs font-bold uppercase tracking-widest bg-black/80 px-2 py-1 border border-[#78350f] opacity-0 group-hover/pin:opacity-100 transition-opacity whitespace-nowrap">
-                  {loc.name}
-                </div>
-             </button>
-           ))}
-
-           {/* POPUP LUOGO (Stile Pergamena) */}
-           {selectedLoc && (
-             <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in">
-               <div className="parchment-dark fantasy-border p-1 max-w-lg w-full">
-                 <div className="relative h-48 border-b-2 border-[#b45309]">
-                    <img src={selectedLoc.image} className="w-full h-full object-cover opacity-80" alt={selectedLoc.name} />
-                    <button onClick={() => setSelectedLoc(null)} className="absolute top-2 right-2 bg-[#451a03] text-[#fbbf24] w-8 h-8 border border-[#d97706] hover:bg-red-900">✕</button>
+      {/* 3. AREA DI GIOCO */}
+      <div className="relative z-10 w-full max-w-4xl h-[600px] flex">
+        
+        {screen === 'STORY' && node ? (
+          // --- SCENA DIALOGO (Immersiva) ---
+          <div className="w-full h-full flex flex-col justify-end pb-10">
+            
+            {/* Scena Visiva: Personaggio + Dialogo */}
+            <div className="flex items-end gap-4 px-8">
+              
+              {/* Ritratto Personaggio (Pixel Art) */}
+              <div className="w-1/3">
+                 <img 
+                   src={node.characterImage} 
+                   className="w-full pixel-border bg-black/50" 
+                   alt="Character"
+                 />
+                 <div className="bg-blue-600 text-white text-center border-2 border-white mt-2 p-1">
+                    {node.characterName}
                  </div>
-                 <div className="p-6 text-center">
-                   <h2 className="text-3xl text-[#fbbf24] font-bold mb-2 font-serif uppercase">{selectedLoc.name}</h2>
-                   <p className="text-[#a8a29e] italic mb-6 font-serif text-lg">{selectedLoc.description}</p>
-                   <div className="space-y-3">
-                     {selectedLoc.actions.map(action => (
+              </div>
+
+              {/* Box Testo */}
+              <div className="w-2/3 pixel-border p-6 bg-blue-900/90 text-white">
+                <p className="mb-6 text-sm md:text-base typing-effect">{node.text}</p>
+                
+                {/* Opzioni */}
+                <div className="grid grid-cols-1 gap-2">
+                  {node.choices.map((c, i) => (
+                    <button 
+                      key={i}
+                      onClick={() => handleChoice(c)}
+                      className="pixel-btn p-3 text-left hover:text-yellow-300"
+                    >
+                      ► {c.text}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          // --- MAPPA MONDO (Pixel Art) ---
+          <div className="w-full h-full relative pixel-border bg-black/20 backdrop-blur-sm">
+             <div className="absolute top-2 left-2 bg-black text-white px-2 py-1 border border-white">
+               MAPPA DEL MONDO
+             </div>
+
+             {/* Punti Mappa */}
+             {mapLocations.map(loc => (
+               <button
+                 key={loc.id}
+                 onClick={() => {
+                    if(loc.status === 'UNLOCKED') setSelectedMapLoc(loc);
+                 }}
+                 className={`absolute w-8 h-8 hover:scale-125 transition-transform
+                   ${loc.status === 'LOCKED' ? 'grayscale opacity-50 cursor-not-allowed' : 'cursor-pointer'}
+                 `}
+                 style={{ left: `${loc.x}%`, top: `${loc.y}%` }}
+               >
+                  {/* Icona Pixel (Un semplice quadrato colorato per ora) */}
+                  <div 
+                    className="w-full h-full border-2 border-white shadow-[0_0_10px_black]"
+                    style={{ backgroundColor: loc.iconColor }}
+                  ></div>
+                  {/* Etichetta */}
+                  <div className="absolute top-10 left-1/2 -translate-x-1/2 bg-black text-white text-[10px] px-2 border border-white whitespace-nowrap hidden hover:block">
+                    {loc.name}
+                  </div>
+               </button>
+             ))}
+
+             {/* Popup Entrata Luogo */}
+             {selectedMapLoc && (
+               <div className="absolute inset-0 bg-black/80 flex items-center justify-center z-50">
+                 <div className="pixel-border p-6 bg-blue-900 max-w-sm text-center">
+                   <h2 className="text-xl text-yellow-400 mb-4">{selectedMapLoc.name}</h2>
+                   <img src={selectedMapLoc.bgImage} className="w-full h-32 object-cover border-2 border-white mb-4" />
+                   <p className="text-xs mb-6">{selectedMapLoc.description}</p>
+                   
+                   <div className="flex flex-col gap-2">
+                     {selectedMapLoc.actions.map(act => (
                        <button
-                         key={action.id}
-                         onClick={() => { setNodeId(action.storyNodeId); setScreen('STORY'); setSelectedLoc(null); }}
-                         className="btn-fantasy w-full py-3 text-lg uppercase"
+                         key={act.id}
+                         className="pixel-btn p-2"
+                         onClick={() => {
+                           setCurrentLocation(selectedMapLoc); // Importante: Imposta lo sfondo!
+                           setNodeId(act.storyNodeId);
+                           setScreen('STORY');
+                           setSelectedMapLoc(null);
+                         }}
                        >
-                         Entra: {action.label}
+                         ENTRA: {act.label}
                        </button>
                      ))}
+                     <button onClick={() => setSelectedMapLoc(null)} className="text-red-400 mt-2 text-xs hover:underline">CHIUDI</button>
                    </div>
                  </div>
                </div>
-             </div>
-           )}
-        </div>
-      )}
+             )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

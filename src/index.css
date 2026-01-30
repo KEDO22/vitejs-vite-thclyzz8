@@ -1,44 +1,59 @@
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400&display=swap');
+/* Importiamo un font Pixel Art da Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 body {
-  background-color: #050505; /* Nero profondo */
-  color: #e2e8f0;
-  font-family: 'Crimson Text', serif; /* Font per i testi lunghi */
-  background-image: url("https://www.transparenttextures.com/patterns/black-felt.png"); /* Texture sottile */
+  background-color: #111;
+  color: #fff;
+  font-family: 'Press Start 2P', cursive; /* Font Pixel */
+  font-size: 12px; /* I font pixel sono grandi, teniamoli piccoli */
+  line-height: 1.8;
+  /* Evita che le immagini pixel diventino sfocate */
+  image-rendering: pixelated; 
 }
 
-h1, h2, h3, button.fantasy-title {
-  font-family: 'Cinzel', serif; /* Font per i titoli */
+/* Stile per i container "CRT" o Retro */
+.pixel-border {
+  border: 4px solid #fff;
+  box-shadow: 
+    -4px 0 0 0 black,
+    4px 0 0 0 black,
+    0 -4px 0 0 black,
+    0 4px 0 0 black,
+    0 0 0 4px white; /* Bordo doppio stile NES */
+  background-color: #2a2a2a;
 }
 
-/* Effetto Bordo Fantasy Dorato */
-.fantasy-border {
-  border: 3px solid #b45309; /* Color bronzo/oro scuro */
-  outline: 2px solid #78350f; /* Bordo esterno scuro */
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.8), inset 0 0 50px rgba(0,0,0,0.5);
+.pixel-btn {
+  background-color: #3b82f6;
+  border: 2px solid white;
+  color: white;
+  text-transform: uppercase;
+  transition: transform 0.1s;
+}
+.pixel-btn:hover {
+  background-color: #2563eb;
+  transform: scale(1.05);
+}
+.pixel-btn:active {
+  transform: scale(0.95);
 }
 
-/* Stile Pergamena Scura */
-.parchment-dark {
-  background-color: #1c1917;
-  background-image: url("https://www.transparenttextures.com/patterns/dark-leather.png");
-}
-
-/* Bottone Legno */
-.btn-fantasy {
-  background: linear-gradient(to bottom, #451a03, #290e00);
-  border: 1px solid #d97706;
-  color: #fbbf24;
-  text-shadow: 0 2px 4px rgba(0,0,0,1);
-  font-family: 'Cinzel', serif;
-  transition: all 0.2s;
-}
-.btn-fantasy:hover {
-  background: linear-gradient(to bottom, #78350f, #451a03);
-  box-shadow: 0 0 15px #d97706;
-  transform: translateY(-2px);
+/* Animazione scansione schermo vecchio */
+.scanlines {
+  background: linear-gradient(
+    to bottom,
+    rgba(255,255,255,0),
+    rgba(255,255,255,0) 50%,
+    rgba(0,0,0,0.1) 50%,
+    rgba(0,0,0,0.1)
+  );
+  background-size: 100% 4px;
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none;
+  z-index: 50;
 }

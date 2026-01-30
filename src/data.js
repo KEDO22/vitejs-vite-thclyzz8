@@ -1,88 +1,82 @@
-// Sfondo Mappa
-export const worldMapImage = "https://images.unsplash.com/photo-1628155930542-3c7a64e2c833?q=80&w=1920&auto=format&fit=crop"; 
+// Immagine Mappa Pixelata (Sfondo generale)
+export const worldMapImage = "https://art.pixilart.com/sr2583569800701.png"; 
 
-// --- DATABASE LUOGHI ---
+// --- LUOGHI ---
 export const mapLocations = [
   {
     id: 'ruins',
-    name: 'Rovine di Cristallo',
+    name: 'Rovine',
     region: 'FREELANDS',
-    x: 48, y: 65,
+    x: 45, y: 70,
     status: 'UNLOCKED',
-    image: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=800&auto=format&fit=crop",
-    description: "Cristalli pulsanti emergono dalla terra. Un luogo antico e proibito.",
-    actions: [{ id: 'a1', label: 'Investiga l\'Eco', storyNodeId: 'explore_ruins' }]
+    iconColor: '#a855f7', // Viola pixel
+    // Sfondo che appare QUANDO ENTRI nel luogo (Immersività)
+    bgImage: "https://art.pixilart.com/sr2c67676743936.png", 
+    description: "Antiche pietre pixellose.",
+    actions: [{ id: 'a1', label: 'Esplora', storyNodeId: 'explore_ruins' }]
   },
   {
     id: 'orynth',
-    name: 'Orynth',
+    name: 'Città Mercato',
     region: 'FREELANDS',
-    x: 55, y: 55,
+    x: 55, y: 50,
     status: 'UNLOCKED',
-    image: "https://images.unsplash.com/photo-1543536448-d209d2d159d4?q=80&w=800&auto=format&fit=crop",
-    description: "La città dorata dei mercanti. Qui ogni parola ha un prezzo.",
+    iconColor: '#eab308', // Oro pixel
+    bgImage: "https://art.pixilart.com/sr2208039233076.png",
+    description: "Caos e commercio.",
     actions: [
-      { id: 'a2', label: 'Cerca il Mercante', storyNodeId: 'market_intro' },
-      { id: 'a3', label: 'Entra nella Taverna', storyNodeId: 'tavern_intro' }
+      { id: 'a2', label: 'Mercante', storyNodeId: 'market_intro' },
+      { id: 'a3', label: 'Taverna', storyNodeId: 'tavern_intro' }
     ]
   },
   {
     id: 'bastion',
-    name: 'Bastione d\'Acciaio',
+    name: 'Bastione',
     region: 'EMPIRE',
-    x: 20, y: 40,
+    x: 20, y: 35,
     status: 'LOCKED',
-    image: "https://images.unsplash.com/photo-1626278664071-8c081308b739?q=80&w=800&auto=format&fit=crop",
-    description: "Fortezza impenetrabile avvolta dal fumo delle fonderie.",
-    actions: [{ id: 'a4', label: 'Cancelli', storyNodeId: 'bastion_gate' }]
-  },
-  {
-    id: 'spire',
-    name: 'La Spire',
-    region: 'DOMINION',
-    x: 80, y: 30,
-    status: 'LOCKED',
-    image: "https://images.unsplash.com/photo-1519074069444-1ba4fff66d16?q=80&w=800&auto=format&fit=crop",
-    description: "Torre arcana sospesa nel vuoto.",
-    actions: [{ id: 'a5', label: 'Osserva', storyNodeId: 'spire_look' }]
+    iconColor: '#64748b', // Grigio
+    bgImage: "https://art.pixilart.com/sr2107409259656.png",
+    description: "Fortezza di ferro.",
+    actions: [{ id: 'a4', label: 'Entra', storyNodeId: 'bastion_gate' }]
   }
 ];
 
-// --- DATABASE STORIA E PERSONAGGI ---
+// --- STORIA E NPC (Pixel Portraits) ---
 export const storyNodes = {
   'start': {
-    title: 'La Voce nel Buio',
-    // Immagine del personaggio che parla (o scena)
-    characterImage: "https://images.unsplash.com/photo-1531384441138-2736e62e0919?q=80&w=600&auto=format&fit=crop", 
-    characterName: "???",
-    text: 'Apri gli occhi, Tessitore. Il mondo si è spezzato 800 anni fa, ma tu... tu senti ancora i fili che lo legano. Cosa farai con questo potere?',
-    choices: [{ text: 'Chiudo gli occhi e ascolto', nextNodeId: 'MAP' }]
+    title: 'INIZIO',
+    // Ritratto Pixel Art del personaggio
+    characterImage: "https://art.pixilart.com/sr2513470691510.png", 
+    characterName: "Voce",
+    text: 'Sveglia, Eroe. I pixel di questo mondo si stanno sgretolando.',
+    choices: [{ text: 'Apri Mappa', nextNodeId: 'MAP' }]
   },
   'explore_ruins': {
-    title: 'Guardiano delle Rovine',
-    characterImage: "https://images.unsplash.com/photo-1601233749202-95d04d5b3c00?q=80&w=600&auto=format&fit=crop", // Un golem o statua
-    characterName: "Costrutto Antico",
-    text: 'Rilevata firma energetica anomala. Sei un discendente dei Primordi? Rispondi o sarai terminato.',
+    title: 'IL GOLEM',
+    characterImage: "https://art.pixilart.com/sr2876644266150.png", 
+    characterName: "Guardiano",
+    text: 'BIP. BOOP. Rilevata forma di vita non autorizzata.',
     choices: [
-      { text: 'Combatti (Forza)', nextNodeId: 'MAP', consequences: [{type: 'hp', value: -10}] },
-      { text: 'Usa il Sigillo (Risonanza)', nextNodeId: 'MAP', consequences: [{type: 'intel', value: 10}] }
+      { text: 'Attacca', nextNodeId: 'MAP', consequences: [{type: 'hp', value: -10}] },
+      { text: 'Analizza', nextNodeId: 'MAP', consequences: [{type: 'intel', value: 5}] }
     ]
   },
   'market_intro': {
-    title: 'Il Mercante Scaltro',
-    characterImage: "https://images.unsplash.com/photo-1506277886164-e25aa3f4ef7f?q=80&w=600&auto=format&fit=crop", // Uomo con turbante/barba
-    characterName: "Kadir",
-    text: 'Psst! Straniero! Quel marchio sulla tua mano... vale una fortuna per l\'Impero. O per me. Che ne dici se facciamo un piccolo affare privato?',
+    title: 'MERCANTE',
+    characterImage: "https://art.pixilart.com/sr2c95400609506.png",
+    characterName: "Venditore",
+    text: 'Ehi tu! Vuoi comprare qualche pixel raro?',
     choices: [
-      { text: 'Vendi informazioni (+20 Oro)', nextNodeId: 'MAP', consequences: [{type: 'gold', value: 20}, {type: 'reputation_empire', value: 5}] },
-      { text: 'Rifiuta e minaccialo', nextNodeId: 'MAP', consequences: [{type: 'reputation_empire', value: -5}] }
+      { text: 'Compra Pozione (-5 Oro)', nextNodeId: 'MAP', consequences: [{type: 'gold', value: -5}, {type: 'hp', value: 20}] },
+      { text: 'Vattene', nextNodeId: 'MAP' }
     ]
   },
   'tavern_intro': {
-    title: 'La Spia',
-    characterImage: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=600&auto=format&fit=crop", // Donna misteriosa
-    characterName: "Elara",
-    text: 'Non guardarti intorno. C\'è un inquisitore al tavolo in fondo. Se sei chi penso tu sia, dobbiamo muoverci. Adesso.',
-    choices: [{ text: 'Seguila nel retro', nextNodeId: 'MAP', consequences: [{type: 'intel', value: 5}] }]
+    title: 'TAVERNA',
+    characterImage: "https://art.pixilart.com/sr2056247946890.png",
+    characterName: "Oste",
+    text: 'Qui serviamo solo birra a 8-bit.',
+    choices: [{ text: 'Bevi', nextNodeId: 'MAP', consequences: [{type: 'hp', value: 5}] }]
   }
 };
